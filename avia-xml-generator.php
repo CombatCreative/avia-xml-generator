@@ -80,12 +80,14 @@
                         $date = get_the_date();
                         $postcontent = get_the_content();
                         $id = get_the_ID();
+                        $permalink = get_permalink();
 
                         foreach($this->avia_xml_settings[$matching_cat]['xml_nodes'] as $tag => $content)
                         {
                             $content = str_replace("{title}", $title, $content);
                             $content = str_replace("{date}", $date, $content);
                             $content = str_replace("{content}", $postcontent, $content);
+                            $content = str_replace("{url}", $permalink, $content);
 
 
                             //replace post meta keys with values
@@ -111,7 +113,7 @@
                                             $fallback_value = $pieces[1];
                                         }
 
-                                        $meta_value = get_post_meta($post_id, $meta_key, true);
+                                        $meta_value = get_post_meta($id, $meta_key, true);
 
                                         if(!empty($meta_value))
                                         {
@@ -124,6 +126,7 @@
                                                 $fallback_value = str_replace("%title%", $title, $fallback_value);
                                                 $fallback_value = str_replace("%date%", $date, $fallback_value);
                                                 $fallback_value = str_replace("%content%", $postcontent, $fallback_value);
+                                                $fallback_value = str_replace("%url%", $permalink, $fallback_value);
                                                 $content = str_replace($matches[0][$elementcount], $fallback_value, $content);
                                             }
                                         }
@@ -159,8 +162,6 @@
                     $writer->startElement('notifier');
                     $writer->writeAttribute('version', '1.0');
 
-                    //Write post content data into the buffer
-                    $writer->startElement($catname);
 
                     //remove first element of the array because it's the latest post
                     $latestupdate = array_shift($xmlcontent);
@@ -197,11 +198,6 @@
                     }
 
                     //End previous version element
-                    $writer->endElement();
-
-
-
-                    //End category element
                     $writer->endElement();
 
                     //End notifier element
